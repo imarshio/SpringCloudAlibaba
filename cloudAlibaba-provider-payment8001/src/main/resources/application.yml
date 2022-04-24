@@ -1,0 +1,24 @@
+server:
+  # 服务端口号
+  port: 8001
+
+
+spring:
+  application:
+    # 服务名称
+    name: cloudAlibaba-payment-service
+  datasource:
+    # 数据源信息
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: org.gjt.mm.mysql.Driver
+    url: jdbc:mysql://localhost:3306/cloudalibaba?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: 20173602
+
+
+
+mybatis:
+  # mapper文件所在位置
+  mapper-locations: classpath:mapper/*.xml
+  # 实体类所在文件
+  type-aliases-package: com.marshio.cloudAlibaba.entities
