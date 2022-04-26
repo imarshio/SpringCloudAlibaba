@@ -1,4 +1,4 @@
-package com.marshio.cloudAlibaba.VO;
+package com.marshio.cloudAlibaba.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -6,8 +6,8 @@ import lombok.NoArgsConstructor;
 
 /**
  * @author masuo
- * @data 24/4/2022 下午3:36
- * @Description 返回实体
+ * @data 25/4/2022 下午1:31
+ * @Description 前后端传递对象
  */
 
 @Data

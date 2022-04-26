@@ -9,19 +9,31 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <description>支付模块，端口8001</description>
-
-    <!--解决ignored pom.xml  file->settings->build,..->maven->ignored file->去掉勾即可-->
-    <artifactId>cloudAlibaba-provider-payment8001</artifactId>
+    <artifactId>cloudAlibaba-consumer-order80</artifactId>
 
 
     <dependencies>
 
+        <!--引入自定义的通用包-->
         <dependency>
             <groupId>com.marshio.springcloud</groupId>
             <artifactId>cloudAlibaba-commons</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
+        <!-- 远程服务调用 -->
+        <!-- httpclient -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.13</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.73</version>
+        </dependency>
+
         <!-- web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

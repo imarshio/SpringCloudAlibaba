@@ -12,6 +12,8 @@
 
   <modules>
     <module>cloudAlibaba-provider-payment8001</module>
+    <module>cloudAlibaba-consumer-order80</module>
+    <module>cloudAlibaba-commons</module>
   </modules>
 
   <description>Demo project for Springboot + Spring Cloud + Spring Cloud Alibaba</description>
@@ -59,6 +61,14 @@
         <groupId>com.alibaba.cloud</groupId>
         <artifactId>spring-cloud-alibaba-dependencies</artifactId>
         <version>2.1.0.RELEASE</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- fastjson -->
+      <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>fastjson</artifactId>
+        <version>1.2.73</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
