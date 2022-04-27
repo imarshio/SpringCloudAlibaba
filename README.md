@@ -10,7 +10,7 @@
 
 ### GIT
 
-项目搭建全程手动git命令
+项目搭建全程手动git命令，文件的颜色表示如下状态
 
 ```
 绿色，已经加入控制暂未提交
@@ -20,6 +20,18 @@
 灰色：版本控制已忽略文件；
 ```
 
+#### 本地仓库搭建
+
+```bash
+# 初始话本地仓库
+git init
+
+# 关联远程仓库
+git add remote <远程仓库地址>
+
+# 拉取远程仓库文件，远程仓库建立时可能有自带的LICENSE/README.md
+git pull origin main
+```
 
 
 #### 提交前查看文件状态
@@ -47,10 +59,10 @@ modified:   pom.xml
 
 # 此时我想提交README.md
 
-# 第一步，单独将README.md加到缓存
+# 第一步，单独将README.md加到暂存区
 git add ./README.md
 
-# 第二步，提交到前置区
+# 第二步，提交到本地仓库
 git commit -m "更新README.md"
 
 # 第三步,提交到你的分支
@@ -92,10 +104,6 @@ git log
 # 退出log模式
 q
 ```
-
-
-
-
 
 
 ## 项目架构
@@ -361,6 +369,8 @@ new model -> Maven项目,模块名称：**cloudAlibaba-provider-order80**
 
 #### 6、开启热部署
 
+在微服务开发过程中，我们经常需要重启服务来重新编译代码进行测试，而重启服务又是一个很麻烦的事，我们可以开启一个热部署来自动重启修改过后的服务
+
 ##### 1、添加依赖
 
 ```xml
@@ -574,8 +584,6 @@ mybatis:
 1、 **Expected scheme-specific part at index 10: localhost:**
     这是由于自定义的url未拼接 ``` http:// ```
 
-
-
 ## 工程重构
 
 由于两个模块中存在相同的类，这样当系统很大时，就会造成系统代码冗余，所以我们需要整理各子模块都能用到的重复代码，将其放在一个通用模块下，然后当模块想要使用其中的类时，可以通过pom文件将其导入。
@@ -616,3 +624,165 @@ mybatis:
 
 
 ![image-20220426135852655](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220426135852.png)
+
+## Eureka注册中心
+
+#### 1、new model
+
+new model -> Maven项目,模块名称：**cloudAlibaba-eureka7001**
+
+#### 2、改POM
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>SpringcloudAlibaba</artifactId>
+        <groupId>com.marshio.springcloud</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>cloudAlibaba-eureka</artifactId>
+
+    <description>使用eureka作为注册中心</description>
+
+
+    <dependencies>
+        <!-- 服务注册中心的服务端 eureka-server -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+        </dependency>
+
+        <!-- web -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- actuator  -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+    </dependencies>
+</project>
+```
+
+#### 3、建yml
+
+在该模块下的resource文件下新建`application.yml`文件，注意，如果此时文件没有自动变成“齿轮炮”的状态，那么需要在maven那里刷新一下
+
+```yaml
+server:
+  # 服务端口
+  port: 7001
+
+spring:
+  application:
+    # 服务名称
+    name: eurake7001
+eureka:
+  instance:
+    # eureka服务端的实例名称
+    hostname: eurekaServe
+  client:
+    # 是否将自己注册给eureka注册中心，由于自己就是服务端，所以不需要将自己注册给自己
+    register-with-eureka: false
+    # 服务发现，是否从Eureka注册中心获取服务列表，由于自己是服务端，无需发现服务
+    fetch-registry: false
+    service-url:
+      # K-V，设置eureka server的地址，注意defaultZone并不是属性，只是K-V里的key
+      defaultZone: http://localhost:7001/eureka/
+```
+
+#### 4、主启动
+
+- 在Java文件夹下新建**com.marshio.cloudAlibaba.OrderApplication**的Java类
+- 添加```@SpringBootApplication```的注解
+- 添加```@EnableEurekaServer```的注解，标注这是Eureka服务端
+- 添加```main```方法
+- 添加如下代码 ```SpringApplication.run(OrderApplication.class,args);```
+
+#### 5、业务类
+
+无
+
+#### 6、测试
+
+#### 7、注册Order服务
+
+##### 1、修改POM
+
+找到服务提供者的POM文件，添加如下依赖
+
+```xml
+<!-- 服务注册中心的客户端 eureka-client -->
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+</dependency>
+```
+
+##### 2、修改YML
+
+找到服务提供者的YML文件，添加如下代码
+
+```yaml
+eureka:
+  client:
+    # 表示自己需要被注册到注册中心
+    register-with-eureka: true
+    # 表示自己需要发现服务
+    fetch-registry: true
+    service-url:
+      # Eureka服务端地址，可以写多个
+      defaultZone: http://localhost:7001/eureka/
+```
+
+##### 3、修改启动类
+
+找到客户端的主启动类，在类上添加注释```@EnableEurekaClient```
+
+```java
+// 标识这是一个Eureka客户端
+@EnableEurekaClient
+@SpringBootApplication
+public class OrderApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(OrderApplication.class,args);
+    }
+}
+```
+
+##### 4、测试
+
+打开Eureka注册中心的页面，能发现多了一个服务
+
+![image-20220427160858441](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220427160858.png)
+
+#### 8、注册Payment服务
+
+同上
+
+#### 9、服务集群
+
+##### 1、新建模块
+
+新建一个名为 **cloudAlibaba-provider-payment8002** 的 model，过程参考 [支付模块](# 支付模块)
+
+##### 2、修改YML
+
+设置新模块的端口号为**非8001**端口
+
+##### 3、启动服务
+
+启动所有服务，如下
+
+![image-20220427174106938](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220427174107.png)
+

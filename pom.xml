@@ -14,7 +14,8 @@
     <module>cloudAlibaba-provider-payment8001</module>
     <module>cloudAlibaba-consumer-order80</module>
     <module>cloudAlibaba-commons</module>
-    <module>cloudAlibaba-eureka</module>
+    <module>cloudAlibaba-eureka7001</module>
+    <module>cloudAlibaba-provider-payment8002</module>
   </modules>
 
   <description>Demo project for Springboot + Spring Cloud + Spring Cloud Alibaba</description>

@@ -89,8 +89,7 @@ Http远程服务调用在Spring中被封装成了RestTemplate，其包含多种H
 举个:chestnut:
 ```java
 // 以本次的Order服务调用Payment服务为例
-// 
-@GetMapping("/comsumer/payment/get/{id}")
+@GetMapping("/consumer/payment/get/{id}")
 public ResponseBean<Payment> getPayment(@PathVariable("id") Long id) {
     String url = PAYMENT_URL + "/payment/getPaymentById/" + id;
     log.info("url:" + url);
@@ -99,3 +98,68 @@ public ResponseBean<Payment> getPayment(@PathVariable("id") Long id) {
     return forObject;
 }
 ```
+
+使用RestTemplate的时候有一个问题，使用HTTP远程服务调用时，我们经常会把返回的消息封装到一个实体里，由于返回类型未知，我们通常会有如下两种封装实体的方法：
+
+## 消息封装
+
+### 不带泛型
+
+```java
+import lombok.AllArgsConstructor;import lombok.NoArgsConstructor;
+
+@Date
+@AllArgsConstructor
+@NoArgsConstructor
+public class CommonResponse{
+    private Integer code;
+    private String message;
+    private Object response;
+    
+    public CommonResponse(int code ,String message) {
+        this(code,message,null);
+    }
+
+}
+```
+
+### 带泛型
+
+```java
+import lombok.AllArgsConstructor;import lombok.NoArgsConstructor;
+
+@Date
+@AllArgsConstructor
+@NoArgsConstructor
+public class CommonResponse<T>{
+    private Integer code;
+    private String message;
+    private T response;
+    
+    public CommonResponse(int code ,String message) {
+        this(code,message,null);
+    }
+
+}
+```
+
+## 调用API
+
+我们直接调用**RestTemplate**的```getForObject()/postForObject()```方法时，会报如下错误，
+
+![image-20220427165731320](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220427165731.png)
+
+这大概意思就是为擦除泛型，可能在类型转换时发生错误，身为完美主义者，我自然是不允许出现这种错误的，所以得到了如下解决办法
+
+```java
+@GetMapping("/consumer/payment/create")
+public ResponseBean<Payment> create(Payment payment) {
+    // 声明一个【参数化类型引用】类，这个类的作用就是为了捕获和传递泛型，
+    ParameterizedTypeReference<ResponseBean<Payment>> typeRef = new ParameterizedTypeReference<ResponseBean<Payment>>() { };
+    return restTemplate.exchange(PAYMENT_URL + "/payment/create", HttpMethod.POST, new HttpEntity<>(payment), typeRef).getBody();
+}
+```
+
+> 其原理就是:在你的类的基础上，建立一个子类去继承你的泪，然后在使用时会生成一个该子类的实例，这个子类实例会携带父类信息，详情参考官网对于 [ParameterizedTypeReference](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/core/ParameterizedTypeReference.html) 的解释。
+
+

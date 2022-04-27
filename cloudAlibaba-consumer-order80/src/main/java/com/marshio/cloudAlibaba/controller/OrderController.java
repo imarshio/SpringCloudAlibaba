@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
-import java.lang.reflect.Type;
+import java.io.IOException;
 
 /**
  * @author masuo
@@ -36,7 +36,9 @@ public class OrderController {
     @Resource
     private RestTemplate restTemplate;
 
-    //http://localhost:8001/payment/getPaymentById/11
+    /**
+     * http://localhost:8001/payment/getPaymentById/11
+     */
     public static final String PAYMENT_URL = "http://localhost:8001";
 
     /**
@@ -45,7 +47,7 @@ public class OrderController {
      * @param payment 值赋
      * @return ResponseBean
      */
-    @GetMapping("/comsumer/payment/create")
+    @GetMapping("/consumer/payment/create")
     public ResponseBean<Payment> create(Payment payment) {
         // 如果直接 restTemplate.postForObject(PAYMENT_URL + "/payment/create", payment, ResponseBean.class); unchecked assignment:即未擦除泛型
         // 此时我们需要使用exchange来解决该问题
@@ -54,13 +56,36 @@ public class OrderController {
         return restTemplate.exchange(PAYMENT_URL + "/payment/create", HttpMethod.POST, new HttpEntity<>(payment), typeRef).getBody();
     }
 
-    @GetMapping("/comsumer/payment/get/{id}")
+    /**
+     * 错误示例
+     * @param payment 自动注入的对象
+     * @return ResponseBean
+     */
+    @GetMapping("/test/consumer/payment/create")
+    public ResponseBean<Payment> createTest(Payment payment) {
+        return restTemplate.postForObject(PAYMENT_URL + "/payment/create",payment,ResponseBean.class);
+    }
+
+    @GetMapping("/consumer/payment/get/{id}")
     public ResponseBean<Payment> getPayment(@PathVariable("id") Long id) {
         String url = PAYMENT_URL + "/payment/getPaymentById/" + id;
         log.info("请求地址为url:" + url);
-        // httpClientRPC(url);
+        System.out.println(httpClientTest(url));
         ParameterizedTypeReference<ResponseBean<Payment>> typeReference = new ParameterizedTypeReference<ResponseBean<Payment>>() { };
         return restTemplate.exchange(url,HttpMethod.GET,new HttpEntity<>(id),typeReference).getBody();
+    }
+
+    @GetMapping("/test/consumer/payment/get/{id}")
+    public ResponseBean<String> getPaymentWithHttpClient(@PathVariable("id") Long id) {
+        String url = PAYMENT_URL + "/payment/getPaymentById/" + id;
+        System.out.println();
+        ResponseBean<String> rbs = new ResponseBean<>(400,"失败了吗？");
+        try {
+            rbs = new ResponseBean<>(200,"成功",EntityUtils.toString(httpClientTest(url).getEntity(),"UTF8"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return rbs;
     }
 
     /**
@@ -75,7 +100,7 @@ public class OrderController {
         CloseableHttpResponse response = null;
         try {
             response = httpClient.execute(httpGet);
-            if (response.getStatusLine().getStatusCode() == 200) {
+            if (200 == response.getStatusLine().getStatusCode()) {
                 String rt = EntityUtils.toString(response.getEntity(), "UTF8");
                 log.info(rt);
             }

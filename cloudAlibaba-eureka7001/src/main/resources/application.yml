@@ -1,0 +1,18 @@
+server:
+  port: 7001
+
+spring:
+  application:
+    name: eurake7001
+eureka:
+  instance:
+    # eureka服务端的实例名称
+    hostname: eurekaServe
+  client:
+    # 服务注册，是否将自己注册给Eureka注册中心
+    register-with-eureka: false
+    # 服务发现，是否从Eureka注册中心获取服务列表
+    fetch-registry: false
+    service-url:
+      # K-V，设置Eureka server的地址
+      defaultZone: http://localhost:7001/eureka/

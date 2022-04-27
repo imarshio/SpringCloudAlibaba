@@ -9,11 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <description>支付模块，端口8001</description>
-
-    <!--解决ignored pom.xml  file->settings->build,..->maven->ignored file->去掉勾即可-->
-    <artifactId>cloudAlibaba-provider-payment8001</artifactId>
-
+    <artifactId>cloudAlibaba-provider-payment8002</artifactId>
 
     <dependencies>
 

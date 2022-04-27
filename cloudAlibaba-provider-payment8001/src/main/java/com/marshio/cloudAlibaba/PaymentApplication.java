@@ -3,6 +3,7 @@ package com.marshio.cloudAlibaba;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 
 /**
  * @author masuo
@@ -18,6 +19,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 
 @SpringBootApplication
+@EnableEurekaClient
 @MapperScan("com.marshio.cloudAlibaba.dao")
 public class PaymentApplication {
     public static void main(String[] args) {
