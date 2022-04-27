@@ -14,6 +14,7 @@
     <module>cloudAlibaba-provider-payment8001</module>
     <module>cloudAlibaba-consumer-order80</module>
     <module>cloudAlibaba-commons</module>
+    <module>cloudAlibaba-eureka</module>
   </modules>
 
   <description>Demo project for Springboot + Spring Cloud + Spring Cloud Alibaba</description>
@@ -113,6 +114,7 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>2.2.2.RELEASE</version>
         <configuration>
           <fork>true</fork>
           <addResources>true</addResources>

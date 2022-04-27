@@ -1,10 +1,102 @@
 ## 前言
 
-无
+搭建时每个项目的POM文件可以从以下[Gitee](https://gitee.com/lixiaogou/cloud2020/tree/master)中复制：
+
+
 
 ## 项目背景
 
-无
+
+
+### GIT
+
+项目搭建全程手动git命令
+
+```
+绿色，已经加入控制暂未提交
+红色，未加入版本控制
+蓝色，加入，已提交，有改动
+白色，加入，已提交，无改动
+灰色：版本控制已忽略文件；
+```
+
+
+
+#### 提交前查看文件状态
+
+```bash
+# 查看文件状态，可以列出那些文件被修改了
+git status
+```
+
+![image-20220426175755785](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220426175755.png)
+
+同步到GitHub分为多种方法，如果项目只有你一个人维护，你可以在每次写完之后全部提交到GitHub，走一套完整的流程，如果是多个人维护项目，如果你一次提交很多代码那么可能会与别人的代码发生冲突，所以此时我们就需要提交单个文件夹/文件
+
+#### 提交单个文件
+
+```bash
+# 提交单个文件，只需要在后面加上要提交的文件名即可，剩下的流程就和提交到GitHub的步骤一样了
+git add ./<文件名>
+
+# 如下，git status 查看文件状态后发现
+modified:   README.md
+modified:   cloudAlibaba-consumer-order80/src/main/java/com/marshio/cloudAlibaba/controller/OrderController.java
+modified:   cloudAlibaba-eureka/pom.xml
+modified:   pom.xml
+
+# 此时我想提交README.md
+
+# 第一步，单独将README.md加到缓存
+git add ./README.md
+
+# 第二步，提交到前置区
+git commit -m "更新README.md"
+
+# 第三步,提交到你的分支
+git push remote main
+
+# 同理，提交有较长路径的文件： OrderController.java，此时我们可以使用通配符
+git add ./**/OrderController.java
+
+# 提交一个文件夹或多个文件夹
+git add cloudAlibaba-consumer-order80/src/main/java/com/marshio/cloudAlibaba/controller
+
+# 提交多个文件夹
+git add filePath1 filePath2 ... filePathN
+
+# 如果想提交整个项目,
+git add ./
+```
+
+#### 撤销提交
+
+```bash
+# 未使用add提交代码时，如果想撤销全部，将fileName替换成 。
+git checkout fileName
+git checkout .
+
+# 使用add提交代码后，未commit之前
+git reset HEAD fileName
+git reset HEAD .
+
+# 使用commit提交代码之后，未push之前，实验了一下，差点又得重码一边
+git reset --h 
+
+# 指定回退版本
+git reset --h <commitid>
+
+# 查看commitid
+git log
+
+# 退出log模式
+q
+```
+
+
+
+
+
 
 ## 项目架构
 
