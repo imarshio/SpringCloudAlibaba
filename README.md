@@ -3,7 +3,6 @@
 搭建时每个项目的POM文件可以从以下[Gitee](https://gitee.com/lixiaogou/cloud2020/tree/master)中复制：
 
 
-
 ## 项目背景
 
 
@@ -112,7 +111,6 @@ q
 
 - 采用eureka作为服务注册中心
 - 
-
 
 
 ## 父项目
@@ -251,6 +249,7 @@ new project -> Maven项目,项目名称 **SpringcloudAlibaba**
 找到setting -> Editor -> File types，注意要用分号分开
 
 ![image-20220426171849129](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220426171849.png)
+
 
 ## 支付模块
 
@@ -584,6 +583,7 @@ mybatis:
 1、 **Expected scheme-specific part at index 10: localhost:**
     这是由于自定义的url未拼接 ``` http:// ```
 
+
 ## 工程重构
 
 由于两个模块中存在相同的类，这样当系统很大时，就会造成系统代码冗余，所以我们需要整理各子模块都能用到的重复代码，将其放在一个通用模块下，然后当模块想要使用其中的类时，可以通过pom文件将其导入。
@@ -617,13 +617,14 @@ mybatis:
 
 
 
-![image-20220426135330688](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220426135330.png)
 
 
 
 
 
-![image-20220426135852655](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220426135852.png)
+
+
+
 
 ## Eureka注册中心
 
@@ -776,13 +777,61 @@ public class OrderApplication {
 
 新建一个名为 **cloudAlibaba-provider-payment8002** 的 model，过程参考 [支付模块](# 支付模块)
 
-##### 2、修改YML
+##### 2、修改POM
+
+复制8001模块的POM文件
+
+##### 3、修改YML
 
 设置新模块的端口号为**非8001**端口
 
-##### 3、启动服务
+##### 4、启动服务
 
 启动所有服务，如下
 
 ![image-20220427174106938](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220427174107.png)
 
+##### 5、问题
+
+在复制8001模块的POM文件后，发现一个问题，就是8002的Java/resource文件变成了8001的model文件，删除模块新建还是没用
+
+如下：
+
+![image-20220428091944325](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220428091944.png)
+
+在上图中：8003的Java文件和resource文件后面跟着[cloudAlibaba-provider-payment8002]，这是因为我复制的8002的pom文件
+然后一刷新maven，maven一读取新的pom文件的GAV坐标，发现这是8002的pom，所以它会将8003文件下的Java文件和resource文件注册到8002文件下，写在了一个文件里，具体是哪我就不知道了，但是解决方法还是有的
+
+首先，修改cloudAlibaba-provider-payment8003文件下的pom文件中的坐标
+
+![image-20220428092418579](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220428092418.png)
+
+然后，打开项目结构（model structure），你可以先查看源目录，如果这是目前的目录，就不用删，如果不是，就删掉。
+
+![image-20220428092859732](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220428092900.png)
+
+
+
+
+
+#### 10、注册中心集群
+
+##### 1、新建模块
+
+新建一个名为 **cloudAlibaba-eureka7002** 的 model，过程参考 [Eureka注册中心](# Eureka注册中心)
+
+##### 2、修改POM
+
+复制8001模块的POM文件
+
+##### 3、修改YML
+
+设置新模块的端口号为**非8001**端口
+
+##### 4、建立主启动类
+
+设置新模块的端口号为**非8001**端口
+
+##### 5、启动服务
+
+启动所有服务，如下

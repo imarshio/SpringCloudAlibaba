@@ -3,6 +3,7 @@ server:
   port: 8002
 
 
+
 spring:
   application:
     # 服务名称
@@ -23,13 +24,19 @@ spring:
 
 eureka:
   client:
-    # 注册服务
+    # 注册服务，将自己向注册中心注册时，
     register-with-eureka: true
     # 发现服务
     fetch-registry: true
     # Eureka服务端地址
     service-url:
-      defaultZone: http://localhost:7001/eureka/
+      # 这里必须要加 /eureka 的后缀，不然会被过滤掉，导致找不到注册中心
+      defaultZone: http://eurekaServe7001.com:7001/eureka,http://eurekaServe7002.com:7002/eureka
+
+  instance:
+    hostname: payment8002
+    prefer-ip-address: true
+    instance-id: ${eureka.instance.hostname}-${spring.application.name}:${server.port}
 
 mybatis:
   # mapper文件所在位置

@@ -8,6 +8,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -36,10 +37,23 @@ public class OrderController {
     @Resource
     private RestTemplate restTemplate;
 
+
+    /* 错误示例
+     *
+     * @GetMapping("/test/consumer/payment/create")
+     * public ResponseBean<Payment> createTest(Payment payment) {
+     *     return restTemplate.postForObject(PAYMENT_URL + "/payment/create",payment,ResponseBean.class);
+     * }
+     */
+
+
     /**
      * http://localhost:8001/payment/getPaymentById/11
      */
-    public static final String PAYMENT_URL = "http://localhost:8001";
+
+    // public static final String PAYMENT_URL = "http://localhost:8001";
+    // 集群服务下直接向Eureka调用服务
+    public static final String PAYMENT_URL = "http://CLOUDALIBABA-PAYMENT-SERVICE";
 
     /**
      * 消除泛型：https://www.bbsmax.com/A/1O5EY7PW57/
@@ -54,16 +68,6 @@ public class OrderController {
 
         ParameterizedTypeReference<ResponseBean<Payment>> typeRef = new ParameterizedTypeReference<ResponseBean<Payment>>() { };
         return restTemplate.exchange(PAYMENT_URL + "/payment/create", HttpMethod.POST, new HttpEntity<>(payment), typeRef).getBody();
-    }
-
-    /**
-     * 错误示例
-     * @param payment 自动注入的对象
-     * @return ResponseBean
-     */
-    @GetMapping("/test/consumer/payment/create")
-    public ResponseBean<Payment> createTest(Payment payment) {
-        return restTemplate.postForObject(PAYMENT_URL + "/payment/create",payment,ResponseBean.class);
     }
 
     @GetMapping("/consumer/payment/get/{id}")

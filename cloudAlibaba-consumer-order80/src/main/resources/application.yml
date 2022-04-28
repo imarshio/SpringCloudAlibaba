@@ -20,7 +20,7 @@ eureka:
     # 表示自己需要发现服务
     fetch-registry: true
     service-url:
-      defaultZone: http://localhost:7001/eureka/
+      defaultZone: http://localhost:7001/eureka
 
 mybatis:
   # mapper文件所在位置

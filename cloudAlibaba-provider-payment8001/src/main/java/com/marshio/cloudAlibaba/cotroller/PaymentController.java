@@ -4,6 +4,7 @@ import com.marshio.cloudAlibaba.vo.ResponseBean;
 import com.marshio.cloudAlibaba.dao.PaymentDao;
 import com.marshio.cloudAlibaba.entities.Payment;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -21,13 +22,18 @@ public class PaymentController {
     @Resource
     private PaymentDao paymentDao;
 
+    @Value("${server.port}")
+    private String port;
+
+    //DiscoverClient
+
     @PostMapping(value = "/payment/create")
     public ResponseBean<Integer> create( Payment payment) {
         int result = paymentDao.create(payment);
         log.info("插入结果 ：" + result);
         if (result > 0) {
             //parameterized
-            return new ResponseBean<>(200, "success", result);
+            return new ResponseBean<>(200, "success,端口为：" + port, result);
         } else {
 
             return new ResponseBean<>(408, "失败了哦", null);
@@ -41,7 +47,7 @@ public class PaymentController {
         log.info("查询结果 ：" + payment);
         if (payment != null) {
             //parameterized
-            return new ResponseBean<>(200, "success", payment);
+            return new ResponseBean<>(200, "success,端口为：" + port, payment);
         } else {
             return new ResponseBean<>(408, "失败了哦", null);
         }

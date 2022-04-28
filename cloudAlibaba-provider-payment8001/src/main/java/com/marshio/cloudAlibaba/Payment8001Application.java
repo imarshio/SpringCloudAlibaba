@@ -21,8 +21,8 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 @SpringBootApplication
 @EnableEurekaClient
 @MapperScan("com.marshio.cloudAlibaba.dao")
-public class PaymentApplication {
+public class Payment8001Application {
     public static void main(String[] args) {
-        SpringApplication.run(PaymentApplication.class, args);
+        SpringApplication.run(Payment8001Application.class, args);
     }
 }
