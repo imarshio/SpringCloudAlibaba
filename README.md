@@ -1,6 +1,6 @@
 ## 前言
 
-搭建时每个项目的POM文件可以从以下[Gitee](https://gitee.com/lixiaogou/cloud2020/tree/master)中复制：
+搭建时每个项目的POM文件可以从以下[gitee](https://gitee.com/lixiaogou/cloud2020/tree/master)中复制：
 
 
 ## 项目背景
@@ -613,19 +613,6 @@ mybatis:
 </dependency>
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## Eureka注册中心
 
 #### 1、new model
@@ -687,6 +674,7 @@ spring:
   application:
     # 服务名称
     name: eurake7001
+
 eureka:
   instance:
     # eureka服务端的实例名称
@@ -697,8 +685,8 @@ eureka:
     # 服务发现，是否从Eureka注册中心获取服务列表，由于自己是服务端，无需发现服务
     fetch-registry: false
     service-url:
-      # K-V，设置eureka server的地址，注意defaultZone并不是属性，只是K-V里的key
-      defaultZone: http://localhost:7001/eureka/
+      # K-V，设置eureka server的地址，注意defaultZone并不是属性，只是K-V里的key,单机模式下只需要写自己的Eureka服务地址即可，注意加上 /eureka 后缀
+      defaultZone: http://localhost:7001/eureka
 ```
 
 #### 4、主启动
@@ -715,11 +703,15 @@ eureka:
 
 #### 6、测试
 
+打开如下地址： http://localhost:7001/，注意这里请求Eureka服务的页面时，不需要加eureka的后缀，因为前端过滤器会自己定向到Eureka的页面，出现类似下面的图即可，因为现在还未注册服务，所以在服务实例这里还没有实例
+
+![image-20220428143044737](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220428143045.png)
+
 #### 7、注册Order服务
 
 ##### 1、修改POM
 
-找到服务提供者的POM文件，添加如下依赖
+找到服务提供者（这里我们假设Order也是服务提供者之一）的POM文件，添加如下依赖
 
 ```xml
 <!-- 服务注册中心的客户端 eureka-client -->
@@ -738,16 +730,16 @@ eureka:
   client:
     # 表示自己需要被注册到注册中心
     register-with-eureka: true
-    # 表示自己需要发现服务
+    # 表示自己需要发现服务，即可能会通过注册中心调用服务
     fetch-registry: true
     service-url:
-      # Eureka服务端地址，可以写多个
-      defaultZone: http://localhost:7001/eureka/
+      # Eureka服务端的地址，
+      defaultZone: http://localhost:7001/eureka
 ```
 
 ##### 3、修改启动类
 
-找到客户端的主启动类，在类上添加注释```@EnableEurekaClient```
+找到客户端的主启动类，在类上添加注释```@EnableEurekaClient```，标注这是一个Eureka客户端，如下
 
 ```java
 // 标识这是一个Eureka客户端
@@ -771,7 +763,7 @@ public class OrderApplication {
 
 同上
 
-#### 9、服务集群
+#### 9、Payment服务集群
 
 ##### 1、新建模块
 
@@ -783,7 +775,48 @@ public class OrderApplication {
 
 ##### 3、修改YML
 
-设置新模块的端口号为**非8001**端口
+```yaml
+server:
+  # 服务端口号
+  port: 8002
+
+spring:
+  application:
+    # 服务名称,相同服务需要设置相同的name
+    name: cloudAlibaba-payment-service
+  datasource:
+    # 数据源信息
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: org.gjt.mm.mysql.Driver
+    url: jdbc:mysql://localhost:3306/cloudalibaba?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: 20173602
+    druid:
+      test-while-idle: false
+
+eureka:
+  client:
+    # 注册服务，将自己向注册中心注册时，
+    register-with-eureka: true
+    # 发现服务
+    fetch-registry: true
+    # Eureka服务端地址
+    service-url:
+      # 这里必须要加 /eureka 的后缀，不然会被过滤掉，导致找不到注册中心
+      defaultZone: http://eurekaServe7001.com:7001/eureka,http://eurekaServe7002.com:7002/eureka
+
+  instance:
+    hostname: payment8002
+    prefer-ip-address: true
+    # 服务实例id可自定义，可默认：主机名+服务名+port
+    instance-id: ${eureka.instance.hostname}-${spring.application.name}:${server.port}
+
+mybatis:
+  # mapper文件所在位置
+  mapper-locations: classpath:mapper/*.xml
+  # 实体类所在文件
+  type-aliases-package: com.marshio.cloudAlibaba.entities
+```
 
 ##### 4、启动服务
 
@@ -799,10 +832,9 @@ public class OrderApplication {
 
 ![image-20220428091944325](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220428091944.png)
 
-在上图中：8003的Java文件和resource文件后面跟着[cloudAlibaba-provider-payment8002]，这是因为我复制的8002的pom文件
-然后一刷新maven，maven一读取新的pom文件的GAV坐标，发现这是8002的pom，所以它会将8003文件下的Java文件和resource文件注册到8002文件下，写在了一个文件里，具体是哪我就不知道了，但是解决方法还是有的
+在上图中：8003的Java文件和resource文件后面跟着【cloudAlibaba-provider-payment8002】，这是因为我是直接复制的8002的pom文件，然后一刷新maven，maven一读取新的pom文件的GAV坐标，发现这是8002的pom，所以它会将8003文件下的Java文件和resource文件注册到8002文件下，写在了一个文件里，具体是哪我就不知道了，但是解决方法还是有的。
 
-首先，修改cloudAlibaba-provider-payment8003文件下的pom文件中的坐标
+首先，修改`cloudAlibaba-provider-payment8003`文件下的pom文件中的坐标
 
 ![image-20220428092418579](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220428092418.png)
 
@@ -810,9 +842,44 @@ public class OrderApplication {
 
 ![image-20220428092859732](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220428092900.png)
 
+##### 6、测试
 
+此时发现，`CLOUDALIBABA-PAYMENT-SERVICE`服务对应着多个payment服务
 
+![image-20220428143044737](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220428143045.png)
 
+集群就搭建完成，顺带测试一下是否能正常请求数据。
+
+##### 7、请求数据
+
+既然有了集群部署，服务消费者在请求数据时就不能再通过固定的【ip+端口】去请求了，而是通过注册中心去请求服务，在注册中心中，能以一概全的包括所有Payment微服务的就只有【Application】这个标签了，所以我们就需要通过这个标签对应的值去请求服务。
+这就是负载均衡，服务消费者在调用服务时，
+
+即修改如下
+
+```java
+// 原请求地址：ip + port
+// public static final String PAYMENT_URL = "http://localhost:8001";
+
+// 集群服务下直接向Eureka调用服务，新请求地址
+public static final String PAYMENT_URL = "http://CLOUDALIBABA-PAYMENT-SERVICE";
+```
+
+这一请求数据会发现，请求失败，错误状态是500，即服务器出现了问题，原因是我们虽然添加了集群服务，但是此时，服务并不知道我们请求的是服务集群，他只是单纯的知道我们请求的是【http://CLOUDALIBABA-PAYMENT-SERVICE/payment/getPaymentById/11】，也就是他不知道向服务中心去请求服务，也就解析不了请求地址，所以会报500错误。
+
+![image-20220428143835631](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220428152043.png)
+
+**解决办法**
+
+我们需要给```RestTemplate```加一个```@LoadBanlanced```的注解，因为我们是通过```RestTemplate```发起远程服务调用，此注解帮助他将请求发送到服务中心，并解析地址，然后再请求具体的服务集群中的某一台机器
+
+```java
+@Bean
+@LoadBalanced// 如果直接向注册中心调取服务的话，需要加上此注解
+public RestTemplate getRestTemplate() {
+    return new RestTemplate();
+}
+```
 
 #### 10、注册中心集群
 
@@ -822,16 +889,76 @@ public class OrderApplication {
 
 ##### 2、修改POM
 
-复制8001模块的POM文件
+复制7001模块的POM文件
 
 ##### 3、修改YML
 
-设置新模块的端口号为**非8001**端口
+```yaml
+server:
+  port: 7002
+
+spring:
+  application:
+    name: eureka7002
+
+eureka:
+  instance:
+    hostname: eurekaServe7002.com
+
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      defaultZone: http://eurekaServe7001.com:7001/eureka
+```
 
 ##### 4、建立主启动类
 
 设置新模块的端口号为**非8001**端口
 
-##### 5、启动服务
+##### 5、修改host（可选）
 
-启动所有服务，如下
+如果你不是在单机环境下部署集群，可忽略，如果你是单机环境下，且Eureka的hostname是默认的，也可忽略。
+
+如果你是单机环境下部署集群，且自定义Eureka的hostname，则需要修改host，将localhost映射到hostname。
+
+如下
+
+![image-20220428151135180](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220428151135.png)
+
+##### 6、注册中心复制
+
+在模块```cloudAlibaba-eureka7001```下的```application.yml```文件下添加如下
+
+```yaml
+eureka:
+  instance:
+    hostname: eurekaServe7001.com
+
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      # 告诉 eurekaServe7002
+      defaultZone: http://eurekaServe7002.com:7002/eureka
+```
+
+在模块```cloudAlibaba-eureka7002```下的```application.yml```文件下添加如下
+
+```yaml
+eureka:
+  instance:
+    hostname: eurekaServe7002.com
+
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      # 告诉 eurekaServe7002
+      defaultZone: http://eurekaServe7001.com:7001/eureka
+```
+
+打开页面出现如下
+
+![image-20220428151947292](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220428151947.png)
+

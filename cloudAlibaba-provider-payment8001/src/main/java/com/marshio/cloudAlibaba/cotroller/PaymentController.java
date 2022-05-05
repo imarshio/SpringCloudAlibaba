@@ -25,8 +25,6 @@ public class PaymentController {
     @Value("${server.port}")
     private String port;
 
-    //DiscoverClient
-
     @PostMapping(value = "/payment/create")
     public ResponseBean<Integer> create( Payment payment) {
         int result = paymentDao.create(payment);

@@ -33,3 +33,8 @@ eureka:
     service-url:
       # K-V，设置Eureka server的地址,在集群环境中，将此地址设置为其他EurekaServer的地址，这样EurekaServer就能通过复制将其他
       defaultZone: http://eurekaServe7002.com:7002/eureka
+
+  server:
+    # 禁用自我保护机制
+    enable-self-preservation: false
+

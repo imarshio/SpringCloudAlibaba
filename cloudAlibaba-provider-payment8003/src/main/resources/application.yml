@@ -33,7 +33,8 @@ eureka:
   instance:
     hostname: payment8003
     prefer-ip-address: true
-    instance-id: ${eureka.instance.hostname}-${spring.application.name}:${server.port}
+    # instance-id: ${eureka.instance.hostname}-${spring.application.name}:${server.port}
+    instance-id: payment8003
 
 mybatis:
   # mapper文件所在位置
