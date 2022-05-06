@@ -1,6 +1,6 @@
 ## 前言
 
-搭建时每个项目的POM文件可以从以下[gitee](https://gitee.com/lixiaogou/cloud2020/tree/master)中复制：
+搭建时每个项目的POM文件可以从以下[Gitee](https://gitee.com/lixiaogou/cloud2020/tree/master)中复制：
 
 
 ## 项目背景
