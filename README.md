@@ -26,7 +26,8 @@
 git init
 
 # 关联远程仓库
-git add remote <远程仓库地址>
+git remote add <远程分支文件> <远程仓库地址>
+git remote add origin ***SpringCloudAlibaba.git
 
 # 拉取远程仓库文件，远程仓库建立时可能有自带的LICENSE/README.md
 git pull origin main
@@ -104,13 +105,46 @@ git log
 q
 ```
 
+#### 冲突解决
+
+> 问题产生：本地修改代码后提交到远程仓库，本地版本回退，在提交，然后本地在回退到第一个版本，再次提交时发生如下问题
+>
+> ![image-20220506233311791](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/image-20220506233311791.png)
+>
+> 根源上还是本地与远程仓库代码发生了冲突，需要先拉取，在进行提交，但是此时我想保留本地版本，那么
+
+
+
+
 
 ## 项目架构
 
-基础架构：Spring Cloud + Spring Cloud Alibaba + Spring Boot，采用分布式微服务系统架构
+基础架构：Spring Cloud + Spring Cloud Alibaba + Spring Boot，采用分布式微服务系统架构，下面ca是`cloudAlibaba`的简称。
 
-- 采用eureka作为服务注册中心
-- 
+- 注册中心分别采用了eureka集群部署、Zookeeper、Consul
+
+```xml
+SpringcloudAlibaba
+	--ca-commons				# 通用模块，用于存放通用业务实体类
+	--ca-consumer-order80		# 
+	--ca-eureka7001				# eureka注册中心
+	--ca-eureka7002				# eureka注册中心，与7001做成集群
+	--ca-provider-payment8001 	# 服务提供，支付服务，注册到eureka注册中心
+	--ca-provider-payment8002 	# 服务提供，支付服务，注册到eureka注册中心，集群部署
+	--ca-provider-payment8003 	# 服务提供，支付服务，注册到eureka注册中心，负载均衡，使用DiscoverClient发现服务
+	--ca-provider-payment8004 	# 服务提供，支付服务，注册到Zookeeper注册中心，
+	--ca-provider-payment8005 	# 服务提供，支付服务，注册到eureka注册中心
+	--ca-
+	--ca-
+	--ca-
+	--ca-
+	--ca-
+	--ca-
+```
+
+
+
+
 
 
 ## 父项目
