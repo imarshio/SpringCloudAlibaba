@@ -960,6 +960,65 @@ eureka:
 
 ![image-20220428151135180](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220428151135.png)
 
+
+
+**注意**：
+
+在这里可能会出现一个问题：`UnknownHostException: ??: ??`
+
+```java
+2022-05-10 23:21:46.659  WARN 27924 --- [  restartedMain] c.n.e.transport.JerseyReplicationClient  : Cannot find localhost ip
+
+java.net.UnknownHostException: ??: ??
+```
+
+1、类似如上的错误，基本就是因为你的host文件以及yml文件配置出现了冲突，
+
+根据源码追踪：
+
+```java
+public EurekaInstanceConfigBean(InetUtils inetUtils) {
+    // 2、设置默认的hostinfo
+    this.hostInfo = this.inetUtils.findFirstNonLoopbackHostInfo();
+    this.ipAddress = this.hostInfo.getIpAddress();
+    // 1、设置默认的hostname，看上面
+    this.hostname = this.hostInfo.getHostname();
+}
+
+// 3、设置第一个非回调地址信息
+public InetUtils.HostInfo findFirstNonLoopbackHostInfo() {
+    InetAddress address = this.findFirstNonLoopbackAddress();
+    if (address != null) {
+        return this.convertAddress(address);
+    } else {
+        InetUtils.HostInfo hostInfo = new InetUtils.HostInfo();
+        // 4、设置默认的hostname
+        hostInfo.setHostname(this.properties.getDefaultHostname());
+        hostInfo.setIpAddress(this.properties.getDefaultIpAddress());
+        return hostInfo;
+    }
+}
+
+// 5、默认的hostname为localhost
+private String defaultHostname = "localhost";
+```
+
+我们如果想解决这个问题的话，需要在host文件中如下设置
+
+> 注意，需要让`hostname`和`hosts文件中的name`相匹配
+
+![image-20220510234534237](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/image-20220510234534237.png)
+
+
+
+2、当然也可能是你的电脑的hostname确实乱码了
+
+比如我的：
+
+![image-20220510234851640](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/image-20220510234851640.png)
+
+这样也会导致出现上面的问题。
+
 ##### 6、注册中心复制
 
 在模块```cloudAlibaba-eureka7001```下的```application.yml```文件下添加如下
@@ -995,4 +1054,54 @@ eureka:
 打开页面出现如下
 
 ![image-20220428151947292](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220428151947.png)
+
+
+
+## OpenFeign
+
+### Feign简介
+
+Feign是一个声明式web Service客户端，使用Feigin能让编写web Service客户端更加简单。
+
+他的使用方法是定义一个服务接口然后在上面添加注解。Feigin也支持可插拔式的编码器和解码器。
+
+Spring对Feigin进行了封装，使其支持了SpringMVC标准注解和HttpMessageConverters。Feigin可以与Eureka和Ribbon组合使用以支持负载均衡。
+
+### Open Feign简介
+
+OpenFeign目前是Spring Cloud 二级子项目。平时说的Feign指的是Netflix下的Feign，现在我们学习的是OpenFeign，是Spring提供的。
+
+OpenFeign是一种声明式、模板化的HTTP客户端(仅在Application Client中使用)（称OpenFeign作用：声明式服务调用）。
+
+> 声明式调用是指，就像调用本地方法一样调用远程方法，无需感知操作远程http请求。学习完OpenFeign后可以不使用RestTemplate进行调用。
+
+### 作用
+
+Spring Cloud的声明式调用, 可以做到使用 HTTP请求远程服务时能就像调用本地方法一样的体验，开发者完全感知不到这是远程方法，更感知不到这是个HTTP请求。Feign的应用，让Spring Cloud微服务调用像Dubbo一样，Application Client直接通过接口方法调用Application Service，而不需要通过常规的RestTemplate构造请求再解析返回数据。它解决了让开发者调用远程接口就跟调用本地方法一样，无需关注与远程的交互细节，更无需关注分布式环境开发。
+
+使用OpenFeign时就好像在写控制器方法，OpenFeign都是写在接口中，在声明的方法上添加SpringMVC注解或声明的参数上添加SpringMVC注解就可以完成调用远程的控制器方法。
+
+
+
+> 所以使用Feigin之后，就由之前的`Ribbon+RestTemplate` 变成了 `Open Feign`。
+
+
+
+### 接口+注解
+
+>  微服务接口 + @FeiginClient 
+
+
+
+### 1、new model
+
+> Feign只能在服务消费者方使用
+
+new model -> Maven项目,模块名称：**cloudAlibaba-consumer-feign-order80**
+
+
+
+
+
+
 

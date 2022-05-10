@@ -6,6 +6,22 @@ spring:
     name: eurake7001
 
 # 单机配置
+eureka:
+  instance:
+    hostname
+    # eureka服务端的实例名称
+#    hostname: eurekaserver7001.com
+  client:
+    # 服务注册，是否将自己注册给Eureka注册中心
+    register-with-eureka: false
+    # 服务发现，是否从Eureka注册中心获取服务列表
+    fetch-registry: false
+    service-url:
+      # K-V，设置Eureka server的地址
+      defaultZone: http://eurekaserver7001.com:7001/eureka/
+
+
+# 集群版
 #eureka:
 #  instance:
 #    # eureka服务端的实例名称
@@ -16,23 +32,9 @@ spring:
 #    # 服务发现，是否从Eureka注册中心获取服务列表
 #    fetch-registry: false
 #    service-url:
-#      # K-V，设置Eureka server的地址
-#      defaultZone: http://localhost:7001/eureka/
+#      # K-V，设置Eureka server的地址,在集群环境中，将此地址设置为其他EurekaServer的地址，这样EurekaServer就能通过复制将其他
+#      defaultZone: http://localhost:7001/eureka
 
-
-# 集群版
-eureka:
-  instance:
-    # eureka服务端的实例名称
-    hostname: eurekaServe7001.com
-  client:
-    # 服务注册，是否将自己注册给Eureka注册中心
-    register-with-eureka: false
-    # 服务发现，是否从Eureka注册中心获取服务列表
-    fetch-registry: false
-    service-url:
-      # K-V，设置Eureka server的地址,在集群环境中，将此地址设置为其他EurekaServer的地址，这样EurekaServer就能通过复制将其他
-      defaultZone: http://eurekaServe7002.com:7002/eureka
 
   server:
     # 禁用自我保护机制
