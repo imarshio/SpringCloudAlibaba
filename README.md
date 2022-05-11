@@ -126,9 +126,11 @@ q
 ```xml
 SpringcloudAlibaba
 	--ca-commons				# 通用模块，用于存放通用业务实体类
-	--ca-consumer-order80		# 
-	--ca-eureka7001				# eureka注册中心
-	--ca-eureka7002				# eureka注册中心，与7001做成集群
+	--ca-consumer-order80		# 消费者模块，使用restTemplate+ribbon进行服务调用
+	--ca-consumer-feign-order80	# 消费者模块，使用feign进行服务调用（OpenFeign）
+	--ca-eureka7001				# eureka注册中心，单机版
+	--ca-eureka7002				# eureka注册中心，与7003做成集群
+	--ca-eureka7003				# eureka注册中心，与7002做成集群
 	--ca-provider-payment8001 	# 服务提供，支付服务，注册到eureka注册中心
 	--ca-provider-payment8002 	# 服务提供，支付服务，注册到eureka注册中心，集群部署
 	--ca-provider-payment8003 	# 服务提供，支付服务，注册到eureka注册中心，负载均衡，使用DiscoverClient发现服务
@@ -649,6 +651,8 @@ mybatis:
 
 ## Eureka注册中心
 
+### 搭建过程
+
 #### 1、new model
 
 new model -> Maven项目,模块名称：**cloudAlibaba-eureka7001**
@@ -969,7 +973,7 @@ eureka:
 ```java
 2022-05-10 23:21:46.659  WARN 27924 --- [  restartedMain] c.n.e.transport.JerseyReplicationClient  : Cannot find localhost ip
 
-java.net.UnknownHostException: ??: ??
+java.net.UnknownHostException: ??: ?? // 这里的错误纯属是因为你的电脑hostname是不能正常解析的，所以显示乱码，
 ```
 
 1、类似如上的错误，基本就是因为你的host文件以及yml文件配置出现了冲突，
@@ -1063,6 +1067,8 @@ eureka:
 
 Feign是一个声明式web Service客户端，使用Feigin能让编写web Service客户端更加简单。
 
+Feign天生支持Ribbon进行负载均衡的服务调用。
+
 他的使用方法是定义一个服务接口然后在上面添加注解。Feigin也支持可插拔式的编码器和解码器。
 
 Spring对Feigin进行了封装，使其支持了SpringMVC标准注解和HttpMessageConverters。Feigin可以与Eureka和Ribbon组合使用以支持负载均衡。
@@ -1087,17 +1093,41 @@ Spring Cloud的声明式调用, 可以做到使用 HTTP请求远程服务时能�
 
 
 
-### 接口+注解
+|          | Eureka             | OpenFeign                     |
+| -------- | ------------------ | ----------------------------- |
+| 服务注册 | 有                 | 无                            |
+| 服务调用 | 有（restTemplate） | 有（接口 + 注解@FeignClient） |
+| 负载均衡 | 有Ribbon           | 有Ribbon                      |
 
->  微服务接口 + @FeiginClient 
+### 搭建过程
 
-
-
-### 1、new model
+#### 1、new model
 
 > Feign只能在服务消费者方使用
 
 new model -> Maven项目,模块名称：**cloudAlibaba-consumer-feign-order80**
+
+
+
+
+
+## Hystrix
+
+### 简介
+
+Hystrix，断路器，是一个用于处理分布式系统的延迟和容错的开源库，在分布式系统里，许多服务会不可避免地调用失败，比如超市、异常等，Hystrix能保证在一个服务出问题的情况下，不会导致整体服务失败，避免级联故障，提高分布式系统的弹性。
+
+
+
+### 服务雪崩
+
+
+
+
+
+
+
+### 搭建过程
 
 
 

@@ -5,12 +5,13 @@ spring:
   application:
     name: eureka7003
 
+# 单机 eureka
 eureka:
   instance:
-    hostname: localhost
+    hostname: eurekaServe7003.com
 
   client:
     register-with-eureka: false
     fetch-registry: false
     service-url:
-      defaultZone: http://localhost:7003/eureka
+      defaultZone: http://eurekaServe7002.com:7002/eureka

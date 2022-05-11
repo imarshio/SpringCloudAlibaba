@@ -21,4 +21,8 @@ public class ResponseBean<T> {
     public ResponseBean(Integer code, String message) {
         this(code, message, null);
     }
+
+    public ResponseBean(T date) {
+        this(200, "success", date);
+    }
 }

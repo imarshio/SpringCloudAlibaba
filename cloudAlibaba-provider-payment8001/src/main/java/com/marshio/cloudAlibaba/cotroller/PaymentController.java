@@ -51,4 +51,17 @@ public class PaymentController {
         }
     }
 
+    /**
+     * 超时测试
+     * @return port
+     */
+    @GetMapping(value = "/payment/timeOutTest")
+    public String timeOut() {
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return port;
+    }
 }

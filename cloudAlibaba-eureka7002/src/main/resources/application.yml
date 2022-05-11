@@ -5,6 +5,7 @@ spring:
   application:
     name: eureka7002
 
+# 集群eureka
 eureka:
   instance:
     hostname: eurekaServe7002.com
@@ -13,4 +14,5 @@ eureka:
     register-with-eureka: false
     fetch-registry: false
     service-url:
-      defaultZone: http://eurekaServe7001.com:7001/eureka
+      # 集群版，互相注册
+      defaultZone: http://eurekaServe7003.com:7003/eureka
