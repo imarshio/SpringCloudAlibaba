@@ -584,7 +584,7 @@ mybatis:
 
 #### 4、主启动
 
-- 在Java文件夹下新建**com.marshio.cloudAlibaba.OrderApplication**的Java类
+- 在Java文件夹下新建**Order80Application**的Java类
 - 添加```@SpringBootApplication```的注解
 - 添加```main```方法
 - 添加如下代码 ```SpringApplication.run(OrderApplication.class,args);```
@@ -729,7 +729,7 @@ eureka:
 
 #### 4、主启动
 
-- 在Java文件夹下新建**com.marshio.cloudAlibaba.OrderApplication**的Java类
+- 在Java文件夹下新建**com.marshio.cloudAlibaba.Eureka7001Application**的Java类
 - 添加```@SpringBootApplication```的注解
 - 添加```@EnableEurekaServer```的注解，标注这是Eureka服务端
 - 添加```main```方法
@@ -1079,6 +1079,8 @@ OpenFeign目前是Spring Cloud 二级子项目。平时说的Feign指的是Netfl
 
 OpenFeign是一种声明式、模板化的HTTP客户端(仅在Application Client中使用)（称OpenFeign作用：声明式服务调用）。
 
+![image-20220512101335242](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220512101352.png)
+
 > 声明式调用是指，就像调用本地方法一样调用远程方法，无需感知操作远程http请求。学习完OpenFeign后可以不使用RestTemplate进行调用。
 
 ### 作用
@@ -1097,7 +1099,7 @@ Spring Cloud的声明式调用, 可以做到使用 HTTP请求远程服务时能�
 | -------- | ------------------ | ----------------------------- |
 | 服务注册 | 有                 | 无                            |
 | 服务调用 | 有（restTemplate） | 有（接口 + 注解@FeignClient） |
-| 负载均衡 | 有Ribbon           | 有Ribbon                      |
+| 负载均衡 | 有（Ribbon）       | 有（Ribbon）                  |
 
 ### 搭建过程
 
@@ -1107,6 +1109,193 @@ Spring Cloud的声明式调用, 可以做到使用 HTTP请求远程服务时能�
 
 new model -> Maven项目,模块名称：**cloudAlibaba-consumer-feign-order80**
 
+#### 2、改pom
+
+```xml
+<dependencies>
+    <!-- OpenFeign -->
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-openfeign</artifactId>
+    </dependency>
+
+    <!-- OpenFeign需要和 Eureka 联合使用，服务注册中心的客户端 eureka-client -->
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+    </dependency>
+
+    <!--引入自定义的通用包-->
+    <dependency>
+        <groupId>com.marshio.springcloud</groupId>
+        <artifactId>cloudAlibaba-commons</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+
+    <!-- web -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <!-- 监控 -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+
+    <!-- devtools热部署工具 -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-devtools</artifactId>
+        <scope>runtime</scope>
+        <optional>true</optional>
+    </dependency>
+
+    <!-- lombok -->
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <optional>true</optional>
+    </dependency>
+
+    <!-- test -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+
+    <!--分布式跟踪系统，有助于收集解决微服务架构中得延迟问题所需的时序数据，它管理这些数据的收集和查找，包含了sleuth+zipkin-->
+    <!--sleuth为分布式追踪提供了自动配置，如果报错可以注掉，等你有了解后可以配置zipkin-->
+    <!--<dependency>-->
+    <!--    <groupId>org.springframework.cloud</groupId>-->
+    <!--    <artifactId>spring-cloud-starter-zipkin</artifactId>-->
+    <!--</dependency>-->
+
+</dependencies>
+```
+
+#### 3、改yml
+
+```yaml
+server:
+  port: 80
+
+eureka:
+  client:
+    # 服务消费者，可以不进行服务注册
+    register-with-eureka: false
+    service-url:
+      # 严格遵守 key: value 的形式
+      defaultZone: http://eurekaServe7002.com:7002/eureka/,http://eurekaServe7003.com:7003/eureka/
+```
+
+#### 4、主启动
+
+- 在Java文件下新建 **com.marshio.cloudAlibaba.OrderFeign80Application** 的类
+- 添加```@SpringBootApplication```的注解
+- 添加```@EnableFeignClient```的注解，标注这个模块需要开启Feign的服务调用功能
+- 添加```main```方法
+
+#### 5、创建与服务对应的接口
+
+> 新建service包，因为我们需要调用的是Payment的服务，所以我们需要找到Payment的服务接口类，并将其copy一份，放在OrderFeign模块下。
+>
+> 然后添加```@Component``` 和 ```@FeignClient(value = "服务的Application_name")```。
+>
+> 然后需要注意的是，我们要遵循调用规范：Acontroller调用Aservice，如果A服务需要调用B服务，那么需要用Aservice调用Bcontroller，再由Bcontroller调用Bservice。
+
+比如，我的Payment服务接口如下
+```java
+@Service
+public interface PaymentService {
+
+    /**
+     * @param id by
+     * @return Payment
+     */
+    Payment getPaymentById(@Param("id") Long id);
+}
+```
+
+那么我在调用时，就需要在OrderFeign模块下，建立对应的接口
+
+```java
+@Component
+// 声明这是使用Feign进行服务调用，且调用的服务为 CLOUDALIBABA-PAYMENT-SERVICE，由负载均衡自动去寻找可用服务
+@FeignClient(value = "CLOUDALIBABA-PAYMENT-SERVICE")
+public interface PaymentFeignService {
+
+    // 服务提供方有什么接口功能，我们这里就提供什么功能
+
+    /**
+     * 根据订单id获取订单信息,
+     * 调用过程，消费者发起调用-》controller --》 service ，找到CLOUDALIBABA-PAYMENT-SERVICE服务下的 /payment/getPaymentById/{id}地址对应的接口 --》调用服务提供方的controller
+     * Feign会根据【服务名称 + GetMapping的value】去调用对应的服务
+     * @param id 订单id
+     * @return ResponseBean 对返回值进行封装
+     */
+    @GetMapping(value = "/payment/getPaymentById/{id}")
+    ResponseBean<Payment> getPaymentById(@PathVariable("id") Long id);
+}
+```
+
+#### 6、调用接口服务
+
+> 调用服务时，就把服务当成本地服务去调用即可，这也是为什么说，Feign是声明式服务调用，只需要简单的声明服务接口，就可以进行调用。
+
+```java
+@RestController
+public class PaymentFeignController {
+
+    // 依赖注入，等同于@Autuwired
+    @Resource
+    PaymentFeignService paymentFeignService;
+
+    @GetMapping(value = "/consumer/get/{id}")
+    public ResponseBean<Payment> getPaymentById(@PathVariable("id") Long id) {
+        return paymentFeignService.getPaymentById(id);
+    }
+}
+```
+
+### 超时控制
+
+OpenFeign是基于Ribbon和Hystrix开发的，所以它自带超时控制。
+
+其默认是3s无响应就会抛出异常，但是我们实际使用过程中，有很多服务由于各种原因都不能再给定的时间内给出响应，所以我们就需要设置更长的超时时间。
+
+#### 更改ml文件
+
+```yaml
+ribbon:
+  # 指建立连接所用的时间 ms
+  ReadTimeout: 5000
+  # 从服务读取资源所用时间(不包括建立连接) ms
+  ConnectTimeout: 5000
+```
+
+#### 测试
+
+我们可以在服务提供方写一个方法，专门用于超时响应测试，代码如下。
+
+```java
+/**
+ * 超时测试
+ * @return port
+ */
+@GetMapping(value = "/payment/timeOutTest")
+public String timeOut() {
+    try {
+        // 无任何业务操作，只是单纯的线程休眠3s
+        Thread.sleep(3000);
+    } catch (InterruptedException e) {
+        e.printStackTrace();
+    }
+    return port;
+}
+```
 
 
 

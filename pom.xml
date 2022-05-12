@@ -12,14 +12,18 @@
 
     <modules>
         <module>cloudAlibaba-commons</module>
+        <!--注册中心-->
         <module>cloudAlibaba-eureka7001</module>
         <module>cloudAlibaba-eureka7002</module>
+        <module>cloudAlibaba-eureka7003</module>
+        <!--服务消费者-->
         <module>cloudAlibaba-consumer-order80</module>
+        <!--服务调用Feign-->
+        <module>cloudAlibaba-consumer-feign-order80</module>
+        <!--服务提供者-->
         <module>cloudAlibaba-provider-payment8001</module>
         <module>cloudAlibaba-provider-payment8002</module>
         <module>cloudAlibaba-provider-payment8003</module>
-        <module>cloudAlibaba-consumer-feign-order80</module>
-        <module>cloudAlibaba-eureka7003</module>
     </modules>
 
     <description>Demo project for Springboot + Spring Cloud + Spring Cloud Alibaba</description>

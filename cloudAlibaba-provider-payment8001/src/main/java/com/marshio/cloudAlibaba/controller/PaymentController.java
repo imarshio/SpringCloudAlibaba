@@ -1,4 +1,4 @@
-package com.marshio.cloudAlibaba.cotroller;
+package com.marshio.cloudAlibaba.controller;
 
 import com.marshio.cloudAlibaba.vo.ResponseBean;
 import com.marshio.cloudAlibaba.dao.PaymentDao;

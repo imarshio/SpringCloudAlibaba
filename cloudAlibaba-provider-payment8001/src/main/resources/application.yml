@@ -24,7 +24,7 @@ eureka:
     # Eureka服务端地址
     service-url:
       # 这里必须要加 /eureka/ ，因为有过滤器做限制
-      defaultZone: http://eurekaserve7002.com:7002/eureka,http://eurekaserve7003.com:7003/eureka
+      defaultZone: http://eurekaserve7001.com:7001/eureka/,http://eurekaserve7002.com:7002/eureka,http://eurekaserve7003.com:7003/eureka
   instance:
     instance-id: payment8001
 
