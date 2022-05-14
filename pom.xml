@@ -20,6 +20,7 @@
         <module>cloudAlibaba-consumer-order80</module>
         <!--服务调用Feign-->
         <module>cloudAlibaba-consumer-feign-order80</module>
+        <module>cloudAlibaba-consumer-consul-order80</module>
         <!--服务提供者-->
         <module>cloudAlibaba-provider-payment8001</module>
         <module>cloudAlibaba-provider-payment8002</module>
