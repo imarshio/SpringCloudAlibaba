@@ -1,0 +1,20 @@
+server:
+  port: 80
+
+eureka:
+  client:
+    # 服务消费者，可以不进行服务注册
+    register-with-eureka: false
+    service-url:
+      defaultZone: http://eurekaServe7002.com:7002/eureka/,http://eurekaServe7003.com:7003/eureka/
+
+
+ribbon:
+  # 指建立连接所用的时间
+  ReadTimeout: 5000
+  # 从服务读取资源所用时间
+  ConnectTimeout: 5000
+logging:
+  level:
+    # 日志以什么级别监听哪个接口
+    com.marshio.cloudAlibaba.service.PaymentFeignService: debug
