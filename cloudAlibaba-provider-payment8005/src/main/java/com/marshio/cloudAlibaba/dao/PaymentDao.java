@@ -1,17 +1,18 @@
-package com.marshio.cloudAlibaba.service;
+package com.marshio.cloudAlibaba.dao;
 
 import com.marshio.cloudAlibaba.entities.Payment;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Service;
 
 /**
  * @author masuo
- * @data 24/4/2022 下午4:23
- * @Description 服务
+ * @data 24/4/2022 下午3:42
+ * @Description dao
+ * 推荐使用@Mapper注解
  */
 
-@Service
-public interface PaymentService {
+@Mapper
+public interface PaymentDao {
 
     /**
      * @param payment s
@@ -24,4 +25,9 @@ public interface PaymentService {
      * @return Payment
      */
     Payment getPaymentById(@Param("id") Long id);
+
+    // U
+
+
+    // D
 }

@@ -25,9 +25,8 @@
         <module>cloudAlibaba-provider-payment8001</module>
         <module>cloudAlibaba-provider-payment8002</module>
         <module>cloudAlibaba-provider-payment8003</module>
-
-
         <module>cloudAlibaba-provider-payment8004</module>
+        <module>cloudAlibaba-provider-payment8005</module>
 
     </modules>
 

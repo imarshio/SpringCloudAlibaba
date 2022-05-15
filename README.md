@@ -127,15 +127,16 @@ q
 SpringcloudAlibaba
 	--ca-commons				# 通用模块，用于存放通用业务实体类
 	--ca-consumer-order80		# 消费者模块，使用restTemplate+ribbon进行服务调用
+	--ca-consumer-consul-order80# 消费者模块，使用consul进行服务调用
 	--ca-consumer-feign-order80	# 消费者模块，使用feign进行服务调用（OpenFeign）
 	--ca-eureka7001				# eureka注册中心，单机版
 	--ca-eureka7002				# eureka注册中心，与7003做成集群
 	--ca-eureka7003				# eureka注册中心，与7002做成集群
-	--ca-provider-payment8001 	# 服务提供，支付服务，注册到eureka注册中心
-	--ca-provider-payment8002 	# 服务提供，支付服务，注册到eureka注册中心，集群部署
-	--ca-provider-payment8003 	# 服务提供，支付服务，注册到eureka注册中心，负载均衡，使用DiscoverClient发现服务
-	--ca-provider-payment8004 	# 服务提供，支付服务，注册到Zookeeper注册中心，
-	--ca-provider-payment8005 	# 服务提供，支付服务，注册到eureka注册中心
+	--ca-provider-payment8001 	# 服务提供，支付服务，注册到eureka7001
+	--ca-provider-payment8002 	# 服务提供，支付服务，注册到eureka7002、7003，集群部署
+	--ca-provider-payment8003 	# 服务提供，支付服务，注册到eureka7002、7003，DiscoverClient
+	--ca-provider-payment8004 	# 服务提供，支付服务，注册到consul注册中心，
+	--ca-provider-payment8005 	# 服务提供，支付服务，注册到eureka注册中心，使用Hystrix做服务降级、服务熔断
 	--ca-
 	--ca-
 	--ca-
@@ -651,6 +652,12 @@ mybatis:
 
 ## Eureka注册中心
 
+### 简介
+
+
+
+详情请看 [Eureka](https://github.com/Masuo777/SpringCloudAlibaba/blob/main/cloudAlibaba-eureka7001/README.md).
+
 ### 搭建过程
 
 #### 1、new model
@@ -1061,45 +1068,301 @@ eureka:
 
 
 
-## OpenFeign
 
-### Feign简介
 
-Feign是一个声明式web Service客户端，使用Feigin能让编写web Service客户端更加简单。
+## Consul注册中心
 
-Feign天生支持Ribbon进行负载均衡的服务调用。
-
-他的使用方法是定义一个服务接口然后在上面添加注解。Feigin也支持可插拔式的编码器和解码器。
-
-Spring对Feigin进行了封装，使其支持了SpringMVC标准注解和HttpMessageConverters。Feigin可以与Eureka和Ribbon组合使用以支持负载均衡。
-
-### Open Feign简介
-
-OpenFeign目前是Spring Cloud 二级子项目。平时说的Feign指的是Netflix下的Feign，现在我们学习的是OpenFeign，是Spring提供的。
-
-OpenFeign是一种声明式、模板化的HTTP客户端(仅在Application Client中使用)（称OpenFeign作用：声明式服务调用）。
-
-![image-20220512101335242](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220512101352.png)
-
-> 声明式调用是指，就像调用本地方法一样调用远程方法，无需感知操作远程http请求。学习完OpenFeign后可以不使用RestTemplate进行调用。
-
-### 作用
-
-Spring Cloud的声明式调用, 可以做到使用 HTTP请求远程服务时能就像调用本地方法一样的体验，开发者完全感知不到这是远程方法，更感知不到这是个HTTP请求。Feign的应用，让Spring Cloud微服务调用像Dubbo一样，Application Client直接通过接口方法调用Application Service，而不需要通过常规的RestTemplate构造请求再解析返回数据。它解决了让开发者调用远程接口就跟调用本地方法一样，无需关注与远程的交互细节，更无需关注分布式环境开发。
-
-使用OpenFeign时就好像在写控制器方法，OpenFeign都是写在接口中，在声明的方法上添加SpringMVC注解或声明的参数上添加SpringMVC注解就可以完成调用远程的控制器方法。
+### 简介
 
 
 
-> 所以使用Feigin之后，就由之前的`Ribbon+RestTemplate` 变成了 `Open Feign`。
+详情请看：[Consul]()
+
+### 搭建过程
+
+#### 1、下载consul
+
+去[consul官网](https://www.consul.io/downloads)下载对应版本的consul服务端。
+
+如果你是64位，选择AMD64.
+
+![image-20220513110838030](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220513110904.png)
+
+#### 2、启动consul
+
+下载完之后，解压缩，在有`consul.exe`的地方打开`cmd`，输入`consul agent -dev`。
+
+或者你可以直接在我这里的附件里找到consul，双击`runConsul.bat`。
+
+至此，consul的服务端就启动完成了，你可以访问`localhost:8500`测试一下。
+
+![image-20220513111123059](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220513111123.png)
+
+![image-20220513111308660](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220513111308.png)
+
+#### 3、注册payment服务
+
+##### 1、new model
+
+在这里，我们需要将**服务提供者**注册到consul服务端。
+
+new model -> Maven项目,模块名称：**cloudAlibaba-provider-payment8004**.
+
+##### 2、改pom
+
+```xml
+<dependencies>
+
+    <!--consul客户端，服务注册与服务发现-->
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-consul-discovery</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>com.marshio.springcloud</groupId>
+        <artifactId>cloudAlibaba-commons</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <!-- web -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <!-- 健康检查 -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+
+    <!-- mybatis -->
+    <dependency>
+        <groupId>org.mybatis.spring.boot</groupId>
+        <artifactId>mybatis-spring-boot-starter</artifactId>
+    </dependency>
+
+    <!-- alibaba.druid -->
+    <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>druid-spring-boot-starter</artifactId>
+        <version>1.2.8</version>
+    </dependency>
+
+    <!-- mysql -->
+    <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+    </dependency>
+
+    <!-- jdbc -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-jdbc</artifactId>
+    </dependency>
+
+    <!-- devtools热部署工具 -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-devtools</artifactId>
+        <scope>runtime</scope>
+        <optional>true</optional>
+    </dependency>
+
+    <!-- lombok -->
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <optional>true</optional>
+    </dependency>
+
+    <!-- test -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+
+    <!--分布式跟踪系统，有助于收集解决微服务架构中得延迟问题所需的时序数据，它管理这些数据的收集和查找，包含了sleuth+zipkin-->
+    <!--sleuth为分布式追踪提供了自动配置-->
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-zipkin</artifactId>
+    </dependency>
+
+</dependencies>
+```
+
+##### 3、改yml
+
+```yaml
+server:
+  port: 8004
+
+spring:
+  application:
+    name: cloudAlibaba-payment-service
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        # 向 consul 注册
+        service-name: ${spring.application.name}
+```
+
+##### 4、主启动
+
+略
+
+##### 5、测试
+
+> 注意，启动客户端前一定要先启动consul的服务端。
+
+访问 `http://localhost:8500/ui/dc1/services`
+
+![image-20220513141056048](https://masuo-github-image.oss-cn-beijing.aliyuncs.com/image/20220513141056.png)
+
+#### 4、调用payment服务
+
+##### 1、new model
+
+在这里，我们需要将**服务消费者**注册到consul服务端。
+
+new model -> Maven项目,模块名称：**cloudAlibaba-consumer-consul-order80**.
+
+##### 2、改pom
+
+```xml
+<dependencies>
+
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-consul-discovery</artifactId>
+    </dependency>
+
+    <!--引入自定义的通用包-->
+    <dependency>
+        <groupId>com.marshio.springcloud</groupId>
+        <artifactId>cloudAlibaba-commons</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+
+    <!-- web -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <!-- 监控 -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+
+    <!-- devtools热部署工具 -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-devtools</artifactId>
+        <scope>runtime</scope>
+        <optional>true</optional>
+    </dependency>
+
+    <!-- lombok -->
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <optional>true</optional>
+    </dependency>
+
+    <!-- test -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+
+    <!--分布式跟踪系统，有助于收集解决微服务架构中得延迟问题所需的时序数据，它管理这些数据的收集和查找，包含了sleuth+zipkin-->
+    <!--sleuth为分布式追踪提供了自动配置，如果报错可以注掉，等你有了解后可以配置zipkin-->
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-zipkin</artifactId>
+    </dependency>
+
+</dependencies>
+```
 
 
 
-|          | Eureka             | OpenFeign                     |
-| -------- | ------------------ | ----------------------------- |
-| 服务注册 | 有                 | 无                            |
-| 服务调用 | 有（restTemplate） | 有（接口 + 注解@FeignClient） |
-| 负载均衡 | 有（Ribbon）       | 有（Ribbon）                  |
+##### 3、建yml
+
+```yaml
+server:
+  port: 80
+
+spring:
+  application:
+    name: consul-consumer-order
+  # 使用本机注册时，可以省略，因为下面这些都是默认的，当然如果需要向集群注册，那么就需要使用下面的配置 
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        service-name: ${spring.application.name}
+```
+
+
+
+##### 4、主启动
+
+```java
+@SpringBootApplication
+@EnableDiscoveryClient
+// 向 eureka/zookeeper/consul 注册服务，发现服务时需要使用这个注解，当然eureka也可以使用自己的注解
+public class Order80Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Order80Application.class, args);
+    }
+}
+```
+
+
+
+##### 5、测试
+
+建立controller
+
+```java
+@RestController
+public class OrderController {
+	// 向注册中心调取服务
+    public static final String PAYMENT = "http://consul-provider-payment";
+
+    @Resource
+    DiscoveryClient discoveryClient;
+
+    @RequestMapping("/consumer/get")
+    public ResponseBean<List<String>> getPayment() {
+        List<String> services = discoveryClient.getServices();
+        List<String> stringList = new ArrayList<>(services);
+
+        return new ResponseBean<>(stringList);
+    }
+}
+```
+
+
+
+访问`http`
+
+## OpenFeign服务调用
+
+### 简介
+
+详情请看[OpenFeign](https://github.com/Masuo777/SpringCloudAlibaba/tree/main/cloudAlibaba-consumer-feign-order80/README.md).
+
 
 ### 搭建过程
 
@@ -1308,19 +1571,139 @@ Hystrix，断路器，是一个用于处理分布式系统的延迟和容错的�
 
 
 
-### 服务雪崩
-
-
-
-
-
-
+详情查看：[Hystrix]().
 
 ### 搭建过程
 
 
 
+#### 1、new model
 
+new model -> Maven项目,模块名称：**cloudAlibaba-provider-payment8005**
+
+#### 2、改pom
+
+```xml
+<dependencies>
+
+        <!--Hystrix 服务降级、服务熔断-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+        </dependency>
+
+        <!--Eureka注册中心-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.marshio.springcloud</groupId>
+            <artifactId>cloudAlibaba-commons</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <!-- web -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- 监控 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- mybatis -->
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- alibaba.druid -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+            <version>1.2.8</version>
+        </dependency>
+
+        <!-- mysql -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+
+        <!-- jdbc -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+
+        <!-- devtools热部署工具 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!--分布式跟踪系统，有助于收集解决微服务架构中得延迟问题所需的时序数据，它管理这些数据的收集和查找，包含了sleuth+zipkin-->
+        <!--sleuth为分布式追踪提供了自动配置-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-zipkin</artifactId>
+        </dependency>
+    </dependencies>
+```
+
+#### 3、改yml
+
+```yaml
+server:
+  port: 8005
+
+spring:
+  application:
+    name: cloudAlibaba-payment-service
+
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: org.gjt.mm.mysql.Driver
+    url:
+    username: masuo
+    password: Mas+1006
+
+# eureka和Hystrix配合使用
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:7001/eureka/
+  instance:
+    instance-id: payment8005
+```
+
+#### 4、主启动
+
+- 在Java文件下新建 **com.marshio.cloudAlibaba.Payment8005Application** 的类
+- 添加```@SpringBootApplication```的注解
+- 添加```@EnableDiscoveryClient```的注解
+- 添加```main```方法
 
 
 

@@ -10,7 +10,7 @@ eureka:
   instance:
     # hostname
     # eureka服务端的实例名称
-    hostname: eurekaserve7001.com
+    hostname: localhost
   client:
     # 服务注册，是否将自己注册给Eureka注册中心
     register-with-eureka: false
@@ -18,7 +18,7 @@ eureka:
     fetch-registry: false
     service-url:
       # K-V，设置Eureka server的地址
-      defaultZone: http://eurekaserve7001.com:7001/eureka/
+      defaultZone: http://localhost:7001/eureka/
 
 
   # 集群版

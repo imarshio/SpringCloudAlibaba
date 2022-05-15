@@ -14,7 +14,14 @@ ribbon:
   ReadTimeout: 5000
   # 从服务读取资源所用时间
   ConnectTimeout: 5000
+
+
+
 logging:
   level:
     # 日志以什么级别监听哪个接口
     com.marshio.cloudAlibaba.service.PaymentFeignService: debug
+feign:
+  hystrix:
+    # 开启 Hystrix
+    enabled: true

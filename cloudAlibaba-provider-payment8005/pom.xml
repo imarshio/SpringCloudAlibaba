@@ -9,16 +9,21 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>cloudAlibaba-provider-payment8004</artifactId>
+    <artifactId>cloudAlibaba-provider-payment8005</artifactId>
 
     <dependencies>
 
-        <!--consul客户端，服务注册与服务发现-->
+        <!--Hystrix 服务降级、服务熔断-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-consul-discovery</artifactId>
+            <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
         </dependency>
 
+        <!--Eureka注册中心-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.marshio.springcloud</groupId>
             <artifactId>cloudAlibaba-commons</artifactId>
@@ -30,7 +35,7 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- 健康检查 -->
+        <!-- 监控 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -89,6 +94,7 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-zipkin</artifactId>
         </dependency>
-
     </dependencies>
+
+
 </project>
