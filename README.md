@@ -736,7 +736,7 @@ eureka:
 
 #### 4、主启动
 
-- 在Java文件夹下新建**com.marshio.cloudAlibaba.Eureka7001Application**的Java类
+- 在Java文件夹下新建 **com.marshio.cloudAlibaba.Eureka7001Application** 的Java类.
 - 添加```@SpringBootApplication```的注解
 - 添加```@EnableEurekaServer```的注解，标注这是Eureka服务端
 - 添加```main```方法
@@ -989,7 +989,7 @@ java.net.UnknownHostException: ??: ?? // 这里的错误纯属是因为你的电
 
 ```java
 public EurekaInstanceConfigBean(InetUtils inetUtils) {
-    // 2、设置默认的hostinfo
+    // 2、设置默认的 host info 
     this.hostInfo = this.inetUtils.findFirstNonLoopbackHostInfo();
     this.ipAddress = this.hostInfo.getIpAddress();
     // 1、设置默认的hostname，看上面
@@ -1456,7 +1456,7 @@ eureka:
 
 #### 4、主启动
 
-- 在Java文件下新建 **com.marshio.cloudAlibaba.OrderFeign80Application** 的类
+- 在Java文件下新建 **com.marshio.cloudAlibaba.OrderFeign80Application** 的类.
 - 添加```@SpringBootApplication```的注解
 - 添加```@EnableFeignClient```的注解，标注这个模块需要开启Feign的服务调用功能
 - 添加```main```方法
@@ -1544,7 +1544,7 @@ ribbon:
 我们可以在服务提供方写一个方法，专门用于超时响应测试，代码如下。
 
 ```java
-/**
+/*
  * 超时测试
  * @return port
  */
@@ -1700,7 +1700,7 @@ eureka:
 
 #### 4、主启动
 
-- 在Java文件下新建 **com.marshio.cloudAlibaba.Payment8005Application** 的类
+- 在Java文件下新建 **com.marshio.cloudAlibaba.Payment8005Application** 的类.
 - 添加```@SpringBootApplication```的注解
 - 添加```@EnableDiscoveryClient```的注解
 - 添加```main```方法

@@ -15,18 +15,18 @@ spring:
     username: masuo
     password: Mas+1006
 
-eureka:
-  client:
-    # 注册服务
-    register-with-eureka: true
-    # 发现服务
-    fetch-registry: true
-    # Eureka服务端地址
-    service-url:
-      # 这里必须要加 /eureka/ ，因为有过滤器做限制
-      defaultZone: http://localhost:7001/eureka/
-  instance:
-    instance-id: payment8001
+#eureka:
+#  client:
+#    # 注册服务
+#    register-with-eureka: true
+#    # 发现服务
+#    fetch-registry: true
+#    # Eureka服务端地址
+#    service-url:
+#      # 这里必须要加 /eureka/ ，因为有过滤器做限制
+#      defaultZone: http://localhost:7001/eureka/
+#  instance:
+#    instance-id: payment8001
 
 mybatis:
   # mapper文件所在位置
