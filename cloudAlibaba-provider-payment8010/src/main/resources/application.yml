@@ -7,7 +7,11 @@ spring:
   cloud:
     nacos:
       discovery:
+        # 客户端注册到nacos的名称，默认为 ${spring.cloud.nacos.discovery.service:${spring.application.name:}}
+        service: cloudAlibaba-payment-service
         # nacos 服务端地址
         server-addr: 127.0.0.1:8848
         # 隔离不同的服务实例
         namespace: public
+
+
