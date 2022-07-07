@@ -137,7 +137,7 @@ SpringcloudAlibaba
 	--ca-provider-payment8003 	# 服务提供，支付服务，注册到eureka7002、7003，DiscoverClient
 	--ca-provider-payment8004 	# 服务提供，支付服务，注册到consul注册中心，
 	--ca-provider-payment8005 	# 服务提供，支付服务，注册到eureka注册中心，使用Hystrix做服务降级、服务熔断
-	--ca-
+	--ca-provider-payment8010 	# nacos，服务注册，服务发现，配置中心
 	--ca-
 	--ca-
 	--ca-
@@ -1704,6 +1704,115 @@ eureka:
 - 添加```@SpringBootApplication```的注解
 - 添加```@EnableDiscoveryClient```的注解
 - 添加```main```方法
+
+
+
+
+
+## Nacos
+
+
+
+### 简介
+
+参考[什么是Nacos](https://nacos.io/zh-cn/docs/what-is-nacos.html)。
+
+
+
+### 搭建
+
+#### 1、new model
+
+new model -> Maven项目,模块名称：**cloudAlibaba-provider-payment8010**
+
+#### 2、改pom
+
+```xml
+<!-- nacos，注册中心、服务发现、配置中心 -->
+<!-- 注册中心，服务发现功能 -->
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-alibaba-nacos-discovery</artifactId>
+</dependency>
+
+<!-- 配置中心功能 -->
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-alibaba-nacos-config</artifactId>
+</dependency>
+```
+
+#### 3、改yml
+
+`application.yml`
+
+```yaml
+# 如过只需要服务发现，注册中心的功能，那么下面的配置就够用了
+server:
+  port: 8010
+
+spring:
+  application:
+    name: nacos-service
+  cloud:
+    nacos:
+      discovery:
+        # 客户端注册到nacos的名称，默认为 ${spring.cloud.nacos.discovery.service:${spring.application.name:}}
+        service: cloudAlibaba-payment-service
+        # nacos 服务端地址
+        server-addr: 127.0.0.1:8848
+        # 隔离不同的服务实例
+        namespace: public
+```
+
+> 想要Nacos的配置中心功能起作用，就必须要在bootstrap.yml中配置Nacos，因为在Spring Cloud中bootstrap.yml文件的加载是优先级最高的，这样才能保证动态加载配置文件。
+>
+> bootstrap.yml是Spring Cloud扩展出来的配置文件，他会默认去尝试加载`${spring.application.name}.properties`配置文件，所以我们可以将一些公共配置文件放在该配置文件中。
+>
+> 这里我们会涉及到多个配置文件，那我们就不得不说一下配置文件的加载顺序。
+>
+> - 首先，上面我们提到了bootstrap.yml的优先级是最高的，所以优先加载.
+> - 其次，会加载application.yml文件
+> - 最后，按照顺序从上往下加载其余配置文件
+>
+> 然后配置文件遵循优先级大的会覆盖优先级小的，并且会形成互补.
+
+`bootstrap.yml`
+
+```yaml
+# 此文件尽量只放配置中心相关配置
+spring:
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        # 使用非默认的properties文件时，需要设置文件扩展名，只针对默认配置文件
+        file-extension: yml
+        
+        # 当我们需要加载公共配置文件时，我们可以使用shared-dataids,且这些配置文件的优先级较低
+        shared-dataids: ext-conf1.yml,ext-conf2.yml,ext-conf3.yml
+        
+        # 或者
+        # 使用ext-config，这是一个list，优先级要高于shared-dataids
+        ext-config[0]:
+          data-id: xxx0.yml
+          refresh: true
+        ext-config[1]:
+          data-id: xxx1.yml
+```
+
+综上，优先级排序：profile > 默认配置文件 > ext-conf > shar
+
+
+
+#### 4、主启动
+
+- 在Java文件下新建 **com.marshio.cloudAlibaba.Payment8005Application** 的类.
+- 添加```@SpringBootApplication```的注解
+- 添加```@EnableDiscoveryClient```的注解
+- 添加```main```方法
+
+
 
 
 
