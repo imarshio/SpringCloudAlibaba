@@ -13,7 +13,5 @@ spring:
           data-id: xxx.yml
 
 
-server:
-  port: 8050
 
 
