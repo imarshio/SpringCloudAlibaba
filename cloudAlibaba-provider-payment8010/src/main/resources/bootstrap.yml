@@ -3,14 +3,14 @@ spring:
     nacos:
       config:
         server-addr: 127.0.0.1:8848
-        refreshable-dataids: nacos-service.properties
+#        refreshable-dataids: nacos-service.properties
         # 使用非默认的properties文件时，需要设置文件扩展名
         file-extension: yml
 #        ext-config:
 #          - data-id: 11
-        shared-dataids: conf1.yml,conf2.yml,conf3.yml
-        ext-config[0]:
-          data-id: xxx.yml
+#        shared-dataids: conf1.yml,conf2.yml,conf3.yml
+        ext-config:
+          - data-id: common.yml
 
 
 
